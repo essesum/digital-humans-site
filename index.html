@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Humans — Цифровые аватары для бизнеса</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700&family=Syne:wght@600;700;800&display=swap');
+
+        :root {
+            --bg: #050506;
+            --bg-elevated: #0a0a0c;
+            --bg-card: #0e0e12;
+            --bg-card-hover: #141418;
+            --accent: #5E6AD2;
+            --accent-light: #8B95E9;
+            --accent-glow: rgba(94,106,210,0.2);
+            --text: #EDEDF0;
+            --text-secondary: #9494A8;
+            --text-dim: #52526A;
+            --border: rgba(255,255,255,0.06);
+            --border-accent: rgba(94,106,210,0.15);
+            --font-display: 'Syne', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font-body);
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        body::after {
+            content: '';
+            position: fixed; inset: 0; z-index: 9999;
+            pointer-events: none;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+            background-size: 128px;
+            opacity: 0.4;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+        }
+        :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+        /* NAV */
+        nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            padding: 18px 48px;
+            display: flex; align-items: center; justify-content: space-between;
+            background: rgba(5,5,6,0.85);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-bottom: 1px solid var(--border);
+        }
+        .nav-logo {
+            font-family: var(--font-display);
+            font-size: 17px; font-weight: 700; letter-spacing: -0.3px;
+            color: var(--text);
+        }
+        .nav-links { display: flex; gap: 32px; list-style: none; }
+        .nav-links a {
+            color: var(--text-secondary); text-decoration: none;
+            font-size: 13px; font-weight: 500; letter-spacing: 0.3px;
+            transition: color 0.3s;
+        }
+        .nav-links a:hover { color: #fff; }
+
+        /* HERO */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: flex-end;
+            text-align: center;
+            padding: 200px 40px 80px;
+            overflow: hidden;
+        }
+        .hero-video-bg {
+            position: absolute; inset: 0; z-index: 0;
+            overflow: hidden;
+        }
+        .hero-video-bg video {
+            width: 100%; height: 100%;
+            object-fit: cover; opacity: 0.4;
+        }
+        .hero-video-bg::after {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(to bottom,
+                rgba(5,5,6,0.25) 0%,
+                rgba(5,5,6,0.0) 20%,
+                rgba(5,5,6,0.0) 45%,
+                rgba(5,5,6,0.65) 68%,
+                rgba(5,5,6,0.95) 100%);
+        }
+        .hero-content {
+            position: relative; z-index: 1;
+            max-width: 800px;
+        }
+        .hero h1 {
+            font-family: var(--font-display);
+            font-size: clamp(40px, 5.5vw, 72px);
+            font-weight: 800; line-height: 1.02;
+            letter-spacing: -3px;
+            margin-bottom: 32px;
+            color: #fff;
+        }
+        .hero-sub {
+            font-size: 18px; color: var(--text-secondary);
+            max-width: 480px; margin: 0 auto 48px;
+            line-height: 1.8;
+            font-weight: 400;
+        }
+        .hero-cta { display: flex; gap: 16px; justify-content: center; }
+
+        .btn {
+            padding: 16px 36px; border-radius: 12px;
+            font-size: 15px; font-weight: 600;
+            text-decoration: none;
+            transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, background 0.2s ease-out, border-color 0.2s ease-out;
+            cursor: pointer; border: none;
+            display: inline-flex; align-items: center; justify-content: center;
+        }
+        .btn:active { transform: scale(0.97); }
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 0 2px 20px var(--accent-glow);
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 32px rgba(94,106,210,0.4);
+            background: var(--accent-light);
+        }
+        .btn-ghost {
+            background: rgba(255,255,255,0.04); color: var(--text);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .btn-ghost:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(255,255,255,0.2);
+        }
+
+        /* SECTIONS */
+        section { padding: 80px 48px; max-width: 1400px; margin: 0 auto; }
+        .section-label {
+            font-size: 11px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 3px;
+            color: var(--accent); margin-bottom: 16px;
+        }
+        .section-title {
+            font-family: var(--font-display);
+            font-size: clamp(28px, 3.2vw, 42px);
+            font-weight: 700; letter-spacing: -1px; margin-bottom: 48px;
+        }
+
+        /* MANIFESTO */
+        .manifesto {
+            max-width: 1400px; margin: 0 auto;
+            padding: 0 48px;
+        }
+        .manifesto-inner {
+            text-align: center;
+            padding: 56px 48px;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            max-width: 720px;
+            margin: 0 auto;
+        }
+        .manifesto-inner p {
+            font-size: 20px;
+            color: var(--text-secondary);
+            line-height: 1.85;
+            font-weight: 400;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .manifesto-inner p strong {
+            font-family: var(--font-display);
+            color: var(--text);
+            font-weight: 700;
+            font-size: 24px;
+            letter-spacing: -0.5px;
+        }
+        .manifesto-inner p em {
+            font-style: italic;
+            color: var(--text);
+            font-weight: 400;
+        }
+
+        /* FEATURED VIDEO */
+        .featured-wrap {
+            max-width: 1400px; margin: 0 auto;
+            padding: 0 48px;
+        }
+        .featured {
+            position: relative;
+            border-radius: 16px; overflow: hidden;
+            border: 1px solid var(--border-accent);
+            aspect-ratio: 16/9;
+            background: #000;
+        }
+        .featured video {
+            width: 100%; height: 100%; object-fit: cover; display: block;
+        }
+        .featured-label {
+            position: absolute; top: 24px; left: 24px;
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 20px; border-radius: 100px;
+            background: rgba(0,0,0,0.55);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(94,106,210,0.2);
+        }
+        .featured-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--accent-light);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+        .featured-label span {
+            font-size: 13px; font-weight: 600; color: #fff;
+            letter-spacing: 0.5px;
+        }
+
+        /* PILLARS */
+        .pillars {
+            max-width: 1400px; margin: 0 auto;
+            padding: 60px 48px;
+        }
+        .pillars-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+        .pillar {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 40px 32px;
+            transition: border-color 0.25s ease-out, transform 0.25s ease-out, box-shadow 0.25s ease-out;
+        }
+        .pillar:hover {
+            border-color: var(--border-accent);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        .pillar-num {
+            font-family: var(--font-display);
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+            display: block;
+        }
+        .pillar-title {
+            font-family: var(--font-display);
+            font-size: 21px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            margin-bottom: 12px;
+        }
+        .pillar p {
+            font-size: 15px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* VIDEO GRID */
+        .video-section {
+            max-width: 1400px; margin: 0 auto;
+            padding: 0 48px;
+        }
+        .video-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto auto;
+            gap: 12px;
+        }
+        .video-cell {
+            position: relative;
+            border-radius: 12px; overflow: hidden;
+            border: 1px solid var(--border);
+            aspect-ratio: 16/9;
+            background: #000;
+            transition: border-color 0.3s ease-out, box-shadow 0.3s ease-out, transform 0.3s ease-out;
+        }
+        .video-cell.tall {
+            aspect-ratio: 9/14;
+        }
+        .video-cell.wide {
+            grid-column: 1 / -1;
+            aspect-ratio: 21/9;
+        }
+        .video-cell:hover {
+            border-color: var(--border-accent);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            transform: translateY(-2px);
+        }
+        .video-cell video {
+            width: 100%; height: 100%; object-fit: cover; display: block;
+        }
+        .video-tag {
+            position: absolute; bottom: 16px; left: 16px;
+            padding: 6px 16px; border-radius: 100px;
+            font-size: 12px; font-weight: 600;
+            background: rgba(0,0,0,0.55);
+            backdrop-filter: blur(8px);
+            color: #fff; letter-spacing: 0.3px;
+        }
+
+        /* BRIDGE QUOTE */
+        .bridge {
+            max-width: 1400px; margin: 0 auto;
+            padding: 72px 48px;
+            text-align: center;
+        }
+        .bridge p {
+            font-family: var(--font-display);
+            font-size: clamp(20px, 2.2vw, 32px);
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            line-height: 1.4;
+            max-width: 800px;
+            margin: 0 auto 48px;
+            color: var(--text);
+        }
+
+        /* DEMO */
+        .demo-section {
+            max-width: 1400px; margin: 0 auto;
+            padding: 0 48px 48px;
+        }
+        .demo-wrap {
+            background: var(--bg-card);
+            border-radius: 20px; border: 1px solid var(--border);
+            overflow: hidden;
+        }
+        .demo-header {
+            padding: 20px 28px;
+            display: flex; align-items: center; justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+        }
+        .demo-header h3 { font-size: 15px; font-weight: 600; }
+        .demo-live {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 12px; font-weight: 600; color: var(--accent-light);
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+        .demo-live::before {
+            content: ''; width: 7px; height: 7px;
+            border-radius: 50%; background: var(--accent-light);
+            animation: pulse 2s infinite;
+        }
+        .demo-iframe { width: 100%; height: 85vh; min-height: 700px; background: #000; }
+        .demo-iframe iframe { width: 100%; height: 100%; border: none; }
+
+        /* TECH */
+        .tech-row {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border-radius: 16px; overflow: hidden;
+        }
+        .tech-item {
+            background: var(--bg-card);
+            padding: 32px 20px;
+            text-align: center;
+            transition: background 0.25s ease-out;
+        }
+        .tech-item:hover { background: var(--bg-card-hover); }
+        .tech-item svg { margin-bottom: 14px; }
+        .tech-item h4 { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+        .tech-item p { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+
+        /* METRICS */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        .metric {
+            background: var(--bg-card);
+            padding: 48px 32px;
+            text-align: center;
+        }
+        .metric-value {
+            font-family: var(--font-body);
+            font-size: clamp(48px, 6vw, 72px);
+            font-weight: 700;
+            letter-spacing: -1px;
+            line-height: 1;
+            margin-bottom: 14px;
+            color: #fff;
+        }
+        .metric-label {
+            font-size: 15px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            font-weight: 400;
+        }
+
+        /* ANIMATIONS */
+        .anim-categories { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 36px; }
+        .anim-cat-btn {
+            padding: 9px 20px; border-radius: 100px;
+            font-size: 13px; font-weight: 500;
+            background: var(--bg-card); color: var(--text-secondary);
+            border: 1px solid var(--border); cursor: pointer;
+            transition: all 0.3s;
+        }
+        .anim-cat-btn:hover, .anim-cat-btn.active {
+            background: rgba(94,106,210,0.15);
+            color: var(--accent-light);
+            border-color: rgba(94,106,210,0.3);
+        }
+        .anim-table-wrap {
+            background: var(--bg-card);
+            border-radius: 14px; border: 1px solid var(--border);
+            overflow: hidden;
+        }
+        .anim-table-wrap table { width: 100%; border-collapse: collapse; }
+        .anim-table-wrap thead { background: rgba(94,106,210,0.06); }
+        .anim-table-wrap th {
+            padding: 12px 20px; font-size: 11px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 1px;
+            color: var(--accent); text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        .anim-table-wrap td {
+            padding: 12px 20px; font-size: 13px;
+            border-bottom: 1px solid var(--border); vertical-align: top;
+        }
+        .anim-table-wrap tr:last-child td { border-bottom: none; }
+        .anim-table-wrap tbody tr { transition: background 0.2s; }
+        .anim-table-wrap tbody tr:hover { background: var(--bg-card-hover); }
+        .anim-name {
+            font-weight: 600; color: var(--text);
+            font-family: 'SF Mono','Fira Code',monospace; font-size: 12px;
+        }
+        .lipsync-yes { color: var(--accent-light); font-weight: 600; }
+        .lipsync-no { color: var(--text-dim); }
+        .anim-group { display: none; }
+        .anim-group.active { display: block; }
+
+        /* FOOTER */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 48px; text-align: center;
+            color: var(--text-dim); font-size: 13px;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 900px) {
+            nav { padding: 14px 20px; }
+            .nav-links { display: none; }
+            section, .featured-wrap, .manifesto, .pillars, .video-section, .bridge, .demo-section { padding-left: 20px; padding-right: 20px; }
+            .hero { padding: 160px 20px 80px; }
+            .hero-cta { flex-direction: column; align-items: center; }
+            .pillars-grid { grid-template-columns: 1fr; }
+            .video-grid { grid-template-columns: 1fr 1fr; }
+            .metrics-grid { grid-template-columns: 1fr; }
+            .tech-row { grid-template-columns: repeat(3, 1fr); }
+            .demo-iframe { height: 500px; min-height: 500px; }
+        }
+        @media (max-width: 600px) {
+            .video-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="nav-logo">Digital Humans</div>
+    <ul class="nav-links">
+        <li><a href="#pillars">Продукт</a></li>
+        <li><a href="#cases">Кейсы</a></li>
+        <li><a href="#demo">Live Demo</a></li>
+        <li><a href="#tech">Технология</a></li>
+    </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-video-bg">
+        <video src="videos/mvideo-emvi.mp4" autoplay muted loop playsinline></video>
+    </div>
+    <div class="hero-content">
+        <h1>Ваш бренд<br>обретает лицо</h1>
+        <p class="hero-sub">Цифровые аватары — новый стандарт интерфейса.<br>Эмоциональный канал вашего продукта.</p>
+        <div class="hero-cta">
+            <a href="#cases" class="btn btn-primary">Смотреть кейсы</a>
+            <a href="#demo" class="btn btn-ghost">Live Demo</a>
+        </div>
+    </div>
+</section>
+
+<!-- MANIFESTO -->
+<div class="manifesto" style="position: relative; z-index: 2; margin-top: -20px;">
+    <div class="manifesto-inner">
+        <p><strong>Цифровой человек</strong> — это не функция и не фича.<br><br>Это <strong>новый способ быть рядом с клиентом</strong>: говорить его языком, отвечать в момент, когда он нужен, и оставлять ощущение — меня здесь услышали.</p>
+    </div>
+</div>
+
+<!-- FEATURED: GigaAssistant -->
+<div class="featured-wrap" style="margin-bottom: 24px; position: relative; z-index: 2;">
+    <div class="featured">
+        <video src="videos/giga-assistant.mp4" muted loop playsinline preload="metadata"></video>
+        <div class="featured-label">
+            <div class="featured-dot"></div>
+            <span>ГигаПомощник — AI-ассистент</span>
+        </div>
+    </div>
+</div>
+
+<!-- PILLARS -->
+<div class="pillars" id="pillars">
+    <div class="pillars-grid">
+        <div class="pillar">
+            <span class="pillar-num">01</span>
+            <div class="pillar-title">Образ</div>
+            <p>Создаём персонажа с нуля — лицо, характер, голос. Тот, кого ваши клиенты запомнят и узнают.</p>
+        </div>
+        <div class="pillar">
+            <span class="pillar-num">02</span>
+            <div class="pillar-title">Диалог</div>
+            <p>Встраиваем интеллект на ваших данных. Аватар слышит, думает и отвечает — живо, в моменте, без скриптов.</p>
+        </div>
+        <div class="pillar">
+            <span class="pillar-num">03</span>
+            <div class="pillar-title">Видео</div>
+            <p>Аватар становится спикером вашего контента. Новый оффер, новый ролик — без студии и съёмочной группы.</p>
+        </div>
+    </div>
+</div>
+
+<!-- VIDEO CASES -->
+<div class="video-section" id="cases">
+    <div class="video-grid">
+        <div class="video-cell wide">
+            <video src="videos/mvideo-original.mp4" muted loop playsinline preload="metadata"></video>
+            <div class="video-tag">М.Видео</div>
+        </div>
+        <div class="video-cell">
+            <video src="videos/doctor-bg.mp4" muted loop playsinline preload="metadata"></video>
+            <div class="video-tag">AI-консультант</div>
+        </div>
+        <div class="video-cell">
+            <video src="videos/seedance-2.mp4" muted loop playsinline preload="metadata"></video>
+            <div class="video-tag">Digital Human</div>
+        </div>
+        <div class="video-cell wide">
+            <video src="videos/cinematic-avatar.mp4" muted loop playsinline preload="metadata"></video>
+            <div class="video-tag">Cinematic Avatar</div>
+        </div>
+    </div>
+</div>
+
+<!-- BRIDGE -->
+<div class="bridge">
+    <p>Связь между людьми — это не метафора.<br>Это ваш следующий интерфейс.</p>
+</div>
+
+<!-- METRICS -->
+<div style="max-width: 1400px; margin: 0 auto; padding: 0 48px 48px;">
+    <div class="metrics-grid">
+        <div class="metric">
+            <div class="metric-value">96%</div>
+            <div class="metric-label">довольны после пилота</div>
+        </div>
+        <div class="metric">
+            <div class="metric-value">81%</div>
+            <div class="metric-label">выбирают формат с аватаром</div>
+        </div>
+        <div class="metric">
+            <div class="metric-value">&times;5,8</div>
+            <div class="metric-label">рост конверсии</div>
+        </div>
+    </div>
+</div>
+
+<!-- DEMO -->
+<div class="demo-section" id="demo">
+    <div class="demo-wrap">
+        <div class="demo-header">
+            <h3>2D Avatar — Browser Stage</h3>
+            <div class="demo-live">Online</div>
+        </div>
+        <div class="demo-iframe">
+            <iframe src="https://avatar2d-browser-stage.digitalavatars.ru/live" allow="camera; microphone; autoplay" allowfullscreen loading="lazy"></iframe>
+        </div>
+    </div>
+</div>
+
+<!-- TECH -->
+<section id="tech" style="padding-top: 48px;">
+    <div class="section-label">Технология</div>
+    <h2 class="section-title">Как это работает</h2>
+    <div class="tech-row">
+        <div class="tech-item">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            <h4>На устройстве</h4>
+            <p>CPU/GPU клиента, без серверного GPU</p>
+        </div>
+        <div class="tech-item">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-light)" stroke-width="1.5"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+            <h4>Lip Sync</h4>
+            <p>Синхронизация губ в реальном времени</p>
+        </div>
+        <div class="tech-item">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+            <h4>По референсу</h4>
+            <p>Аватар по фото или видео</p>
+        </div>
+        <div class="tech-item">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-light)" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            <h4>Фотореализм</h4>
+            <p>Диффузионная нейросеть</p>
+        </div>
+        <div class="tech-item">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <h4>Браузер</h4>
+            <p>Любое устройство, без приложений</p>
+        </div>
+        <div class="tech-item">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-light)" stroke-width="1.5"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+            <h4>Интерактивность</h4>
+            <p>Сцена, анимации, реакции</p>
+        </div>
+    </div>
+</section>
+
+
+<footer>Digital Humans &copy; 2026</footer>
+
+<script>
+    const vids = document.querySelectorAll('video:not([autoplay])');
+    const obs = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+            if (e.isIntersecting) e.target.play();
+            else e.target.pause();
+        });
+    }, { threshold: 0.25 });
+    vids.forEach(v => obs.observe(v));
+
+</script>
+
+</body>
+</html>
